@@ -1,0 +1,8 @@
+def main() {
+  container {
+    rect(color=#112233) {
+      rect(height=-1 * 50px * 50%, color="green")
+    }
+  }
+}
+
