@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{CustomParser, tokenizer::Operator};
 
 #[derive(Clone)]
@@ -14,39 +16,40 @@ impl Identifier {
 #[derive(Clone)]
 pub struct Definition<T: CustomParser> {
     pub name: Identifier,
-    pub func: Box<FuncCall<T>>,
+    pub parameters: Vec<Identifier>,
+    pub func: Box<Expression<T>>,
 }
 
 impl<T: CustomParser> Definition<T> {
-    pub fn new(name: Identifier, func: Box<FuncCall<T>>) -> Self {
-        Definition { name, func }
+    pub fn new(name: Identifier, parameters: Vec<Identifier>, func: Box<Expression<T>>) -> Self {
+        Definition {
+            name,
+            parameters,
+            func,
+        }
     }
 }
 
 #[derive(Clone)]
 pub struct FuncCall<T: CustomParser> {
     pub name: Identifier,
-    pub args: Vec<Box<Argument<T>>>,
+    pub args: Vec<Box<Expression<T>>>,
+    pub kwargs: HashMap<String, Box<Expression<T>>>,
     pub funcs: Vec<Box<FuncCall<T>>>,
 }
 impl<T: CustomParser> FuncCall<T> {
     pub fn new(
         name: Identifier,
-        args: Vec<Box<Argument<T>>>,
+        args: Vec<Box<Expression<T>>>,
+        kwargs: HashMap<String, Box<Expression<T>>>,
         funcs: Vec<Box<FuncCall<T>>>,
     ) -> Self {
-        FuncCall { name, args, funcs }
-    }
-}
-
-#[derive(Clone)]
-pub struct Argument<T: CustomParser> {
-    pub key: Identifier,
-    pub val: Box<Expression<T>>,
-}
-impl<T: CustomParser> Argument<T> {
-    pub fn new(key: Identifier, val: Box<Expression<T>>) -> Self {
-        Argument { key, val }
+        FuncCall {
+            name,
+            args,
+            kwargs,
+            funcs,
+        }
     }
 }
 
@@ -79,5 +82,7 @@ pub enum Value<T: CustomParser> {
     Number(f64, Option<T::Unit>),
     String(String),
     Expression(Box<Expression<T>>),
+    FuncCall(Box<FuncCall<T>>),
+    Variable(Identifier),
     Custom(T::Value),
 }

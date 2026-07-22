@@ -5,7 +5,7 @@
 - [ ] polish
 
 ## for later
-- [ ] expand macros
+- [x] expand macros
 - [ ] file imports
 - [ ] better errors
 - [ ] comments

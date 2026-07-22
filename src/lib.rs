@@ -1,6 +1,10 @@
 use std::fs;
 
-use crate::{errors::ParseError, parser::nodes::Definition, tokenizer::Token};
+use crate::{
+    errors::ParseError,
+    parser::nodes::{Expression, FuncCall},
+    tokenizer::Token,
+};
 
 pub mod errors;
 pub mod parser;
@@ -9,7 +13,7 @@ pub mod tokenizer;
 pub fn parse_file<T: CustomParser>(
     path: &str,
     ctx: &ParseContext<T>,
-) -> Result<Definition<T>, ParseError> {
+) -> Result<FuncCall<T>, ParseError> {
     let contents = fs::read_to_string(path).expect("read file");
     parse_source(&contents, ctx)
 }
@@ -17,10 +21,11 @@ pub fn parse_file<T: CustomParser>(
 pub fn parse_source<T: CustomParser>(
     src: &str,
     ctx: &ParseContext<T>,
-) -> Result<Definition<T>, ParseError> {
+) -> Result<FuncCall<T>, ParseError> {
     let tokens = tokenizer::tokenize(src, &ctx)?;
     let ast = parser::parser::parse(tokens, &ctx)?;
-    Ok(ast.first().unwrap().clone())
+    let ast = parser::analysis::analyse(ast)?;
+    Ok(ast.clone())
 }
 
 pub struct ParseContext<T: CustomParser> {
