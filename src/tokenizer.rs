@@ -31,6 +31,7 @@ pub enum TokenType<T: CustomParser> {
     Equals,
     NumberLiteral(f64),
     StringLiteral(String),
+    BoolLiteral(bool),
     Comma,
     Custom(T::Token),
 }
@@ -133,9 +134,14 @@ fn read_identifier<T: CustomParser>(
 
     stream.back();
 
-    if str == "def" {
-        Ok(TokenType::Keyword(Keyword::Def))
-    } else if ctx.custom_keywords.contains(&str) {
+    match str.as_str() {
+        "def" => return Ok(TokenType::Keyword(Keyword::Def)),
+        "true" => return Ok(TokenType::BoolLiteral(true)),
+        "false" => return Ok(TokenType::BoolLiteral(false)),
+        _ => (),
+    };
+
+    if ctx.custom_keywords.contains(&str) {
         Ok(TokenType::Keyword(Keyword::Custom(str.to_string())))
     } else {
         Ok(TokenType::Identifier(str))

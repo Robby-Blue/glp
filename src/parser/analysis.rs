@@ -51,6 +51,7 @@ fn analyse_value<T: CustomParser>(
     let new_val = match val {
         Value::Number(_, _) => val.clone(),
         Value::String(_) => val.clone(),
+        Value::Bool(_) => val.clone(),
         Value::Custom(_) => val.clone(),
         Value::Variable(name) => {
             let var = ctx.variables.get(&name.text).expect("var not found");

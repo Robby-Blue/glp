@@ -9,7 +9,7 @@ def successor(n) {
 def main() {
   container {
     rect(color=#112233) {
-      rect(y=successor(0), height=-1 * 50px * 50%, color="green")
+      rect(y=successor(0), height=-1 * 50px * 50%, color="green", bool=true)
     }
   }
 }

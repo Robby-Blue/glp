@@ -81,6 +81,7 @@ impl<T: CustomParser> Expression<T> {
 pub enum Value<T: CustomParser> {
     Number(f64, Option<T::Unit>),
     String(String),
+    Bool(bool),
     Expression(Box<Expression<T>>),
     FuncCall(Box<FuncCall<T>>),
     Variable(Identifier),

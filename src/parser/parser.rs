@@ -392,6 +392,9 @@ fn parse_value<T: CustomParser>(
 
         return Ok(Expression::Value(Value::Number(num, unit)));
     }
+    if let Some(v) = allow_type_data_read!(TokenType::BoolLiteral, stream) {
+        return Ok(Expression::Value(Value::Bool(v)));
+    }
     if !is_no_parentheses_arg && let Some(op) = allow_type_data_read!(TokenType::Operator, stream) {
         return match op {
             Operator::Addition => {
