@@ -9,16 +9,13 @@ use glp::tokenizer::Keyword;
 use glp::tokenizer::Token;
 use glp::tokenizer::TokenType;
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let custom = MyCustomParser {};
     let ctx = ParseContext::new(custom);
 
-    let res = glp::parse_file("examples/data/example.lang", &ctx);
+    let _res = glp::parse_file("examples/data/example.lang", &ctx)?;
 
-    match res {
-        Ok(_) => {}
-        Err(err) => err.print(),
-    }
+    Ok(())
 }
 
 #[derive(Clone)]
