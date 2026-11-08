@@ -85,5 +85,6 @@ pub enum Value<T: CustomParser> {
     Expression(Box<Expression<T>>),
     FuncCall(Box<FuncCall<T>>),
     Variable(Identifier),
+    PropertyAccess(Box<Expression<T>>, Box<Expression<T>>),
     Custom(T::Value),
 }

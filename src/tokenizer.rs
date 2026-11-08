@@ -27,12 +27,13 @@ pub enum TokenType<T: CustomParser> {
     ClosingParenthesis,
     OpeningCurly,
     ClosingCurly,
-    Operator(Operator),
-    Equals,
+    Comma,
+    Dot,
     NumberLiteral(f64),
     StringLiteral(String),
     BoolLiteral(bool),
-    Comma,
+    Operator(Operator),
+    Equals,
     Custom(T::Token),
 }
 
@@ -98,6 +99,7 @@ fn read_token<T: CustomParser>(
             '-' => TokenType::Operator(Operator::Subtraction),
             '*' => TokenType::Operator(Operator::Multiplication),
             '/' => TokenType::Operator(Operator::Division),
+            '.' => TokenType::Dot,
             _ => read_custom_token(stream, ctx)?,
         };
         Ok(token)

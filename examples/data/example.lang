@@ -1,5 +1,5 @@
 def a(n) {
-  n + 1
+  n + 1 + n.o.p
 }
 
 def successor(n) {

@@ -192,18 +192,6 @@ fn parse_func_call<T: CustomParser>(
         }
 
         expect_type!(TokenType::ClosingParenthesis, stream);
-    } else {
-        if !allow_type!(TokenType::OpeningCurly, stream) {
-            let expr = allow_expression(stream, ctx, true, true);
-            match expr {
-                Some(expr) => {
-                    args.push(Box::new(expr));
-                }
-                None => {
-                    return Ok(Value::Variable(Identifier::new(name)));
-                }
-            }
-        }
     }
     let mut funcs = vec![];
 
@@ -411,13 +399,54 @@ fn parse_value<T: CustomParser>(
         };
     }
     if allow_type_data!(TokenType::Identifier, stream) {
-        return Ok(Expression::Value(parse_func_call(stream, ctx)?));
+        return parse_identifier(false, stream, &ctx);
     }
 
     let v = ctx.custom_parser.parse_value(stream)?;
     match v {
         Some(v) => Ok(Expression::Value(Value::Custom(v))),
         None => Err(ParseError::new("bad value")),
+    }
+}
+
+fn parse_identifier<T: CustomParser>(
+    caller_is_dotted: bool,
+    stream: &mut Stream<Token<T>>,
+    ctx: &ParseContext<T>,
+) -> Result<Expression<T>, ParseError> {
+    let name = expect_type_get_data!(TokenType::Identifier, stream);
+
+    if allow_type!(TokenType::Dot, stream) && !caller_is_dotted {
+        stream.back();
+        let mut access = parse_identifier(true, stream, ctx)?;
+
+        while allow_type!(TokenType::Dot, stream) {
+            expect_type!(TokenType::Dot, stream);
+            let identifier = parse_identifier(true, stream, ctx)?;
+
+            access = Expression::Value(Value::PropertyAccess(
+                Box::new(identifier),
+                Box::new(access),
+            ));
+        }
+        return Ok(access);
+    }
+
+    if allow_type!(TokenType::OpeningParenthesis, stream)
+        || allow_type!(TokenType::OpeningCurly, stream)
+    {
+        stream.back();
+        return Ok(Expression::Value(parse_func_call(stream, ctx)?));
+    } else {
+        let expr = allow_expression(stream, ctx, true, true);
+        match expr {
+            Some(expr) => {
+                return Ok(expr);
+            }
+            None => {
+                return Ok(Expression::Value(Value::Variable(Identifier::new(name))));
+            }
+        }
     }
 }
 
